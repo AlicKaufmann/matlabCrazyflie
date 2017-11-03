@@ -81,26 +81,5 @@ plot(maximum{idx})
 %% interpolation
 xq = 10; %acceleration of xq rad/s
 sigToApply(idx) = interp1(maximum{idx},10:10:100,xq);
-
-% % u is the input (motor command->10%, 20%...100%) and y output (v_theta)
-% bag{1}=rosbag('~/bagfiles/specialBagAlic50.bag');
-% bag_u{1} = select(bag{1},'Topic','/cmd_vel');
-% bag_y{1} = select(bag{1},'Topic','/imu');
-% ts_u{1} = timeseries(bag_u{1},'Linear.X');
-% ts_y{1} = timeseries(bag_y{1},'AngularVelocity.X');
-% 
-% % convert from linux time to readable time
-% linux_start_time = ts_y{1}.time(1);
-% ts_u{1}.time=ts_u{1}.time-linux_start_time; 
-% ts_y{1}.time=ts_y{1}.time-linux_start_time;
-% 
-% 
-% start_time_input = ts_u{1}.time(1);
-% end_time_input = ts_u{1}.time(end);
-% end_time_output = ts_y{1}.time(end);
-% 
-% % append zeros to the left and the right of u
-% 
-% ts_u_corrected = append(timeseries([0,0]',[0,start_time_input]),ts_u{1},timeseries([0,0]',[end_time_input,end_time_output]));
-% 
+ 
 end
