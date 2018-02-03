@@ -1,24 +1,17 @@
+%function findMapping(varargin)
+% arguments : folder path were identification data for the propellers are
+
+%define manually because it is easyer
+nargin=2;
+varargin{1}='~/bagfiles/bagPropeller2';
+varargin{2}='~/bagfiles/bagPropeller3';
+
+for idx = 1:nargin % outermost loop, loops for each propeller (bag folders)
 % %filepath={filepath1,filepath2,filepath3,filepath4,filepath5,filepath6,filepath
-% 
-% dirName = '~/bagfiles';
-% s = dir(dirName);
-%
-% for i=3:length(s) % don't take into account the . and .. files
-%     file = strcat(s(i).folder,'/',s(i).name);
-%     eval(['bag', num2str(i-2), '=rosbag(file);']);
-%     ts = timeseries(eval(strcat('bag',num2str(i-2))),'AngularVelocity.X');
-%     eval(['ts',num2str(i-2),'=ts;']);
-% end
-% 
-% for i=3:length(s)
-%     ts = eval(['ts',num2str(i-2)]);
-%     ts.time = ts.time - ts.time(1);
-%     eval(['ts',num2str(i-2),'=ts;']);
-% end
 
 %% afficher l'entrée et la sortie
-
-dirName = '~/bagfiles';
+dirName = varargin{idx};
+%dirName = '~/bagfiles/bagPropeller4'; %directory where you have the bag files
 s = dir(dirName);
 s = s(3:end); % remove the . and .. folders
 for i = 1:length(s)
@@ -48,6 +41,19 @@ ts_u = append(timeseries([0,0]',[0,start_time_input]),ts_u,timeseries([0,0]',[en
 u{i} = ts_u;
 y{i} = ts_y;
 end
+
+perc10=y{1};
+perc20=y{3};
+perc30=y{4};
+perc40=y{5};
+perc50=y{6};
+perc60=y{7};
+perc70=y{8};
+perc80=y{9};
+perc90=y{10};
+perc100=y{2};
+
+% save('propeller4','perc10','perc20','perc30','perc40','perc50','perc60','perc70','perc80','perc90','perc100')
 
 %% transmform the timeseries into matrices for differentiating (by hand)
 %{1}->10%, {2}->20%, {3}->30%, ...
@@ -79,32 +85,14 @@ end
 % F is the filtered version of the angular acceleration
 for i=1:10
     F{i} = sgolayfilt(alphaPer{i},2,71);
-    maximum(i)=max(F{i});
+    maximum{idx}(i)=max(F{i});
 end
 
-figure
-plot(maximum)
+figure(idx)
+plot(maximum{idx})
 
-
-% % u is the input (motor command->10%, 20%...100%) and y output (v_theta)
-% bag{1}=rosbag('~/bagfiles/specialBagAlic50.bag');
-% bag_u{1} = select(bag{1},'Topic','/cmd_vel');
-% bag_y{1} = select(bag{1},'Topic','/imu');
-% ts_u{1} = timeseries(bag_u{1},'Linear.X');
-% ts_y{1} = timeseries(bag_y{1},'AngularVelocity.X');
-% 
-% % convert from linux time to readable time
-% linux_start_time = ts_y{1}.time(1);
-% ts_u{1}.time=ts_u{1}.time-linux_start_time; 
-% ts_y{1}.time=ts_y{1}.time-linux_start_time;
-% 
-% 
-% start_time_input = ts_u{1}.time(1);
-% end_time_input = ts_u{1}.time(end);
-% end_time_output = ts_y{1}.time(end);
-% 
-% % append zeros to the left and the right of u
-% 
-% ts_u_corrected = append(timeseries([0,0]',[0,start_time_input]),ts_u{1},timeseries([0,0]',[end_time_input,end_time_output]));
-% 
-% 
+%% interpolation for the reverse map
+xq = 10; % acceleration of xq rad/s
+sigToApply(idx) = interp1(maximum{idx},10:10:100,xq);
+ 
+end
